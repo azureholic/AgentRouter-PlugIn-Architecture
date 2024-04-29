@@ -1,10 +1,11 @@
-﻿using Microsoft.SemanticKernel;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.SemanticKernel;
 
 namespace PluginInterface
 {
     public interface ISemanticKernelPlugin
     {
 
-        Task RegisterPluginAsync(Kernel kernel, string pluginName);
+        Task RegisterPluginAsync(Kernel kernel, string pluginName, IConfiguration configuration);
     }
 }

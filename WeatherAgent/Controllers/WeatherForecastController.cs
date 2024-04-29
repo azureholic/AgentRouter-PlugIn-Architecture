@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System;
 
 namespace WeatherAgent.Controllers
 {
@@ -21,17 +22,19 @@ namespace WeatherAgent.Controllers
 
 
         [HttpGet(Name = "GetWeatherForecast")]
-        [SwaggerOperation("returns a weather forecast for the next 5 days")]
+        [SwaggerOperation("returns a weather forecast for a specific date")]
 
-        public IEnumerable<WeatherForecast> Get()
+        public WeatherForecast Get([FromQuery] DateOnly date)
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+
+            return new WeatherForecast
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                Date = date,
                 TemperatureC = Random.Shared.Next(-20, 55),
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+            };
+
+            
         }
     }
 }

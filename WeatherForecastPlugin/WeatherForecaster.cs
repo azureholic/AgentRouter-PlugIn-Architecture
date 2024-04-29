@@ -1,40 +1,38 @@
-﻿using Microsoft.SemanticKernel;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.SemanticKernel;
 using PluginInterface;
 using System.ComponentModel;
+using System.Net.Http;
 
 namespace WeatherForecastPlugin;
 
 
 public class WeatherForecaster : ISemanticKernelPlugin
 {
+   
+    private static IConfiguration _config;
     
-
     [KernelFunction]
     [Description("Get the weather forecast for a specific date.")]
-    public static string GetWeatherForecast(
+    public static async Task<string> GetWeatherForecast(
         [Description("The date for which to get the weather forecast, format as YYYY-MM-DD.")]
         string date)
     {
-        return $"nice weather {date}";
+        Console.WriteLine($"Parameter value provided: {date}");
+        Console.WriteLine($"{_config["OrchestratorSettings:Mode"]}");
+
+        var client = new HttpClient();
+        var forecastData = await client.GetStringAsync($"http://localhost:5236/weatherforecast?date={date}");
+
+        Console.WriteLine(forecastData);
+
+        return forecastData;
     }
 
-    public async Task RegisterPluginAsync(Kernel kernel, string pluginName)
+    public async Task RegisterPluginAsync(Kernel kernel, string pluginName, IConfiguration configuration)
     {
-
-
-        kernel.ImportPluginFromFunctions(pluginName,
-            [
-                kernel.CreateFunctionFromMethod((Kernel kernel) =>
-                    kernel.ImportPluginFromType<WeatherForecaster>(
-                        Guid.NewGuid().ToString("N")),
-                        "WeatherForecast")
-            ]
-         );
-
-        var fresult = await kernel.InvokeAsync(pluginName, "WeatherForecast");
-        Console.WriteLine(fresult.Function.Name);
-
-
+        kernel.ImportPluginFromType<WeatherForecaster>(pluginName);
+        _config = configuration;
     }
 
 }

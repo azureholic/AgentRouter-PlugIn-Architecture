@@ -16,8 +16,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PluginInterface", "PluginIn
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeatherForecastPlugin", "WeatherForecastPlugin\WeatherForecastPlugin.csproj", "{26C0341E-CB39-4A6F-8C65-0CBB0F8D274B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LlamaSharpTest", "LlamaSharpTest\LlamaSharpTest.csproj", "{00CBA196-4073-45EE-8B92-177DC3076825}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,10 +38,6 @@ Global
 		{26C0341E-CB39-4A6F-8C65-0CBB0F8D274B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26C0341E-CB39-4A6F-8C65-0CBB0F8D274B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26C0341E-CB39-4A6F-8C65-0CBB0F8D274B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{00CBA196-4073-45EE-8B92-177DC3076825}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{00CBA196-4073-45EE-8B92-177DC3076825}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{00CBA196-4073-45EE-8B92-177DC3076825}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{00CBA196-4073-45EE-8B92-177DC3076825}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
