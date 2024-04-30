@@ -1,12 +1,8 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.SemanticKernel;
-using PluginInterface;
-using System.Reflection;
-using LLama.Common;
-using LLama;
-using LLamaSharp.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Plugins.Core;
 using Orchestrator.BogusFunctions;
+using PluginInterface;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -16,35 +12,12 @@ var skbuilder = Kernel.CreateBuilder();
 
 var mode = configuration["OrchestratorSettings:Mode"];
 
-if (mode == "Llama")
-{
+skbuilder.AddAzureOpenAIChatCompletion(
+                    deploymentName: configuration["AzureOpenAI:ChatDeploymentName"],
+                    endpoint: configuration["AzureOpenAI:Endpoint"],
+                    apiKey: configuration["AzureOpenAI:ApiKey"]
+                );
 
-    string modelPath = configuration["Llama:ModelPath"];
-    int gpuLayerCount = int.Parse(configuration["Llama:GpuLayerCount"]);
-
-    var parameters = new ModelParams(modelPath)
-    {
-        ContextSize = 1024, // The longest length of chat as memory.
-        GpuLayerCount = gpuLayerCount // How many layers to offload to GPU. Please adjust it according to your GPU memory.
-    };
-    using var model = LLamaWeights.LoadFromFile(parameters);
-    //using var context = model.CreateContext(parameters);
-    var executor = new StatelessExecutor(model, parameters);
-
-    builder.Services.AddSingleton(new LLamaSharpChatCompletion(executor));
-
-    //skbuilder.Services.AddKeyedSingleton("local-llama", new LLamaSharpChatCompletion(executor));
-
-
-}
-else
-{
-    skbuilder.AddAzureOpenAIChatCompletion(
-                        deploymentName: configuration["AzureOpenAI:ChatDeploymentName"],
-                        endpoint: configuration["AzureOpenAI:Endpoint"],
-                        apiKey: configuration["AzureOpenAI:ApiKey"]
-                    );
-}
 
 //add build in plugins
 skbuilder.Plugins.AddFromType<TimePlugin>();
@@ -58,9 +31,6 @@ for (int i = 0; i < 20; i++)
 var kernel = skbuilder.Build();
 
 builder.Services.AddSingleton(kernel);
-
-
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -81,8 +51,6 @@ plugIns.ToList().ForEach(async plugin =>
     {
         if (typeof(ISemanticKernelPlugin).IsAssignableFrom(type) && !type.IsAbstract)
         {
-
-                    
             var instance = Activator.CreateInstance(type) as ISemanticKernelPlugin;
 
             if (instance == null)
@@ -99,14 +67,9 @@ plugIns.ToList().ForEach(async plugin =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
-
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
