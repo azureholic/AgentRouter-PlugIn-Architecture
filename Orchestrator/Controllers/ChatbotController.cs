@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LLama;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Planning;
+using Orchestrator.Llama;
 using Orchestrator.Performance;
 
 namespace Orchestrator.Controllers
@@ -11,12 +13,16 @@ namespace Orchestrator.Controllers
     {
         private readonly IConfiguration _config;
         private Kernel _kernel;
+        private StatelessExecutor _executor;
+        //private StatelessChatService _service;
         private CallDuration callDuration = new CallDuration();
 
         public ChatbotController(IConfiguration config, Kernel kernel)
         {
             _config = config;
             _kernel = kernel;
+            //_executor = executor;
+            //_service = service;
         }
 
 
@@ -27,34 +33,43 @@ namespace Orchestrator.Controllers
             callDuration.Start();
 
             string goal = "how is the weather tomorrow?";
-            string finalResult = "Could not get a result";
-                        
-            //Stepwise Planner
-            var stepwise = new FunctionCallingStepwisePlanner();
-                
-            var stepwiseResult = await stepwise.ExecuteAsync(_kernel, goal);
+            string finalResult = "could not get a result";
 
-            foreach (var line in stepwiseResult.ChatHistory)
+            if (_config["OrchestratorSettings:Mode"] == "Llama")
             {
-                Console.WriteLine(line);
-            };
+               
+                //this doesn't work yet with Phi
+                var llamaFunctionCall = new LlamaFunctionCall(_kernel);
+                finalResult = await llamaFunctionCall.GetResult(goal);
+            }
+            else
+            {
+                //Stepwise Planner
+                var stepwise = new FunctionCallingStepwisePlanner();
+                
+                var stepwiseResult = await stepwise.ExecuteAsync(_kernel, goal);
 
-            finalResult = stepwiseResult.FinalAnswer;
+                foreach (var line in stepwiseResult.ChatHistory)
+                {
+                    Console.WriteLine(line);
+                };
 
-            //Handlebars Planner
-            //var handlebar = new HandlebarsPlanner();
-            //var handlebarPlan = await handlebar.CreatePlanAsync(_kernel, goal);
-            //Console.WriteLine("--- prompt ---");
-            //Console.WriteLine(handlebarPlan.Prompt);
-            //Console.WriteLine("--- end prompt ---");
+                finalResult = stepwiseResult.FinalAnswer;
 
-            //Console.WriteLine("--- plan ---");
-            //Console.WriteLine(handlebarPlan);
-            //Console.WriteLine("--- end plan ---");
-            //var handlebarResult = await handlebarPlan.InvokeAsync(_kernel);
+                //Handlebars Planner
+                //var handlebar = new HandlebarsPlanner();
+                //var handlebarPlan = await handlebar.CreatePlanAsync(_kernel, goal);
+                //Console.WriteLine("--- prompt ---");
+                //Console.WriteLine(handlebarPlan.Prompt);
+                //Console.WriteLine("--- end prompt ---");
 
-            //finalResult = handlebarResult;
-         
+                //Console.WriteLine("--- plan ---");
+                //Console.WriteLine(handlebarPlan);
+                //Console.WriteLine("--- end plan ---");
+                //var handlebarResult = await handlebarPlan.InvokeAsync(_kernel);
+
+                //finalResult = handlebarResult;
+            }
          
             callDuration.Stop();
             return Ok(finalResult);
