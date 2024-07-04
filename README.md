@@ -26,4 +26,3 @@ This API is an example of how to build an orchestrator that fronts all of your a
 Based on the config it will load the plugins assemblies at start.
 The chatbot Controller will create a plan and executes that plan based on the available plugins and user question.
 
-Note: BogusFunctions are added to test how big the prompt will get before hitting limits. These functions will never be executed, but are considered by the planner.
