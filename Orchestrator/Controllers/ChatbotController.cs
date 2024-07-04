@@ -13,10 +13,11 @@ namespace Orchestrator.Controllers
         private Kernel _kernel;
         private CallDuration callDuration = new CallDuration();
 
-        public ChatbotController(IConfiguration config, Kernel kernel)
+        public ChatbotController(IConfiguration config, Kernel kernel, IHttpClientFactory httpClientFactory)
         {
             _config = config;
             _kernel = kernel;
+            
         }
 
 

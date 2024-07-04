@@ -11,7 +11,8 @@ public class WeatherForecaster : ISemanticKernelPlugin
 {
    
     private static IConfiguration _config;
-    
+    private static IHttpClientFactory _httpClientFactory;
+
     [KernelFunction]
     [Description("Get the weather forecast for a specific date.")]
     public static async Task<string> GetWeatherForecast(
@@ -21,7 +22,7 @@ public class WeatherForecaster : ISemanticKernelPlugin
         Console.WriteLine($"Parameter value provided: {date}");
         Console.WriteLine($"{_config["OrchestratorSettings:Mode"]}");
 
-        var client = new HttpClient();
+        var client = _httpClientFactory.CreateClient();
         var forecastData = await client.GetStringAsync($"http://localhost:5236/weatherforecast?date={date}");
 
         Console.WriteLine(forecastData);
@@ -29,10 +30,11 @@ public class WeatherForecaster : ISemanticKernelPlugin
         return forecastData;
     }
 
-    public async Task RegisterPluginAsync(Kernel kernel, string pluginName, IConfiguration configuration)
+    public async Task RegisterPluginAsync(Kernel kernel, string pluginName, IConfiguration configuration, IHttpClientFactory httpClientFactory)
     {
         kernel.ImportPluginFromType<WeatherForecaster>(pluginName);
         _config = configuration;
+        _httpClientFactory = httpClientFactory;
     }
 
 }

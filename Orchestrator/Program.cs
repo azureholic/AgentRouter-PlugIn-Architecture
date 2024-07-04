@@ -1,6 +1,5 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Plugins.Core;
-using Orchestrator.BogusFunctions;
 using PluginInterface;
 using System.Reflection;
 
@@ -22,18 +21,16 @@ skbuilder.AddAzureOpenAIChatCompletion(
 //add build in plugins
 skbuilder.Plugins.AddFromType<TimePlugin>();
 
-//add a 20 bogus plugins
-for (int i = 0; i < 20; i++)
-{
-    skbuilder.Plugins.AddFromType<BogusFunctions>("BogusFunctions" + i.ToString());
-}
-
 var kernel = skbuilder.Build();
 
+builder.Services.AddHttpClient();
 builder.Services.AddSingleton(kernel);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//Get the HttpClientFactory
+var httpClientFactory = builder.Services.BuildServiceProvider().GetService<IHttpClientFactory>();
 
 //Load plugins from config
 var plugIns = configuration.GetSection("Plugins").GetChildren();
@@ -58,8 +55,9 @@ plugIns.ToList().ForEach(async plugin =>
                 throw new Exception("Could not create instance of plugin");
             }
 
+            
             // Call the RegisterPlugin method
-            await instance.RegisterPluginAsync(kernel, plugInName, configuration );
+            await instance.RegisterPluginAsync(kernel, plugInName, configuration, httpClientFactory );
         }
     }
 });
